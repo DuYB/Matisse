@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.StyleRes;
 import android.support.v4.app.Fragment;
@@ -29,6 +30,7 @@ import com.zhihu.matisse.engine.ImageEngine;
 import com.zhihu.matisse.filter.Filter;
 import com.zhihu.matisse.internal.entity.CaptureStrategy;
 import com.zhihu.matisse.internal.entity.SelectionSpec;
+import com.zhihu.matisse.listener.OnSelectedListener;
 import com.zhihu.matisse.ui.MatisseActivity;
 
 import java.lang.annotation.Retention;
@@ -148,7 +150,26 @@ public final class SelectionCreator {
     public SelectionCreator maxSelectable(int maxSelectable) {
         if (maxSelectable < 1)
             throw new IllegalArgumentException("maxSelectable must be greater than or equal to one");
+        if (mSelectionSpec.maxImageSelectable > 0 || mSelectionSpec.maxVideoSelectable > 0)
+            throw new IllegalStateException("already set maxImageSelectable and maxVideoSelectable");
         mSelectionSpec.maxSelectable = maxSelectable;
+        return this;
+    }
+
+    /**
+     * Only useful when {@link SelectionSpec#mediaTypeExclusive} set true and you want to set different maximum
+     * selectable files for image and video media types.
+     *
+     * @param maxImageSelectable Maximum selectable count for image.
+     * @param maxVideoSelectable Maximum selectable count for video.
+     * @return
+     */
+    public SelectionCreator maxSelectablePerMediaType(int maxImageSelectable, int maxVideoSelectable) {
+        if (maxImageSelectable < 1 || maxVideoSelectable < 1)
+            throw new IllegalArgumentException(("max selectable must be greater than or equal to one"));
+        mSelectionSpec.maxSelectable = -1;
+        mSelectionSpec.maxImageSelectable = maxImageSelectable;
+        mSelectionSpec.maxVideoSelectable = maxVideoSelectable;
         return this;
     }
 
@@ -259,6 +280,21 @@ public final class SelectionCreator {
      */
     public SelectionCreator imageEngine(ImageEngine imageEngine) {
         mSelectionSpec.imageEngine = imageEngine;
+        return this;
+    }
+
+    /**
+     * Set listener for callback immediately when user select or unselect something.
+     * <p>
+     * It's a redundant API with {@link Matisse#obtainResult(Intent)},
+     * we only suggest you to use this API when you need to do something immediately.
+     *
+     * @param listener {@link OnSelectedListener}
+     * @return {@link SelectionCreator} for fluent API.
+     */
+    @NonNull
+    public SelectionCreator setOnSelectedListener(@Nullable OnSelectedListener listener) {
+        mSelectionSpec.onSelectedListener = listener;
         return this;
     }
 

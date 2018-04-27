@@ -24,6 +24,7 @@ import com.zhihu.matisse.R;
 import com.zhihu.matisse.engine.ImageEngine;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.filter.Filter;
+import com.zhihu.matisse.listener.OnSelectedListener;
 
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,8 @@ public final class SelectionSpec {
     public int orientation;
     public boolean countable;
     public int maxSelectable;
+    public int maxImageSelectable;
+    public int maxVideoSelectable;
     public List<Filter> filters;
     public boolean capture;
     public CaptureStrategy captureStrategy;
@@ -45,6 +48,7 @@ public final class SelectionSpec {
     public int gridExpectedSize;
     public float thumbnailScale;
     public ImageEngine imageEngine;
+    public OnSelectedListener onSelectedListener;
 
     private SelectionSpec() {
     }
@@ -67,6 +71,8 @@ public final class SelectionSpec {
         orientation = 0;
         countable = false;
         maxSelectable = 1;
+        maxImageSelectable = 0;
+        maxVideoSelectable = 0;
         filters = null;
         capture = false;
         captureStrategy = null;
@@ -77,7 +83,7 @@ public final class SelectionSpec {
     }
 
     public boolean singleSelectionModeEnabled() {
-        return !countable && maxSelectable == 1;
+        return !countable && (maxSelectable == 1 || (maxImageSelectable == 1 && maxVideoSelectable == 1));
     }
 
     public boolean needOrientationRestriction() {
